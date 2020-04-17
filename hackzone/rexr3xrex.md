@@ -2,8 +2,8 @@
 layout: default
 ---
 
-## Welcome to another page
+### Hackzone: RexR3xRex
 
-_yay_
+![hz](../assets/img/hz.png)
 
-[back](../index.md)
+

@@ -1,13 +1,9 @@
----
-layout: default
----
 
-## Hackzone: RexR3xRex Walkthrough
+# Hackzone: RexR3xRex Walkthrough
 
 ![hz](../assets/img/hz.png)
 
-Investigate-Me
-==============
+
 
 Presentation
 ------------
@@ -17,7 +13,13 @@ During an Active Directory pentest mission, i successfully pwned a user password
 Vulnerability
 -------------
 
-Kerberos Preauthentication
+Kerberos Preauthentication: cracking user password from AS-REQ or AS-REP.
+Actually Pre-authentication is the first step first in Kerberos authentication. 
+
+How Preauth works? When requesting a TGT a user encrypts the timestamp with its own password and sends [the PA-DATA](https://tools.ietf.org/html/rfc4120#page-60) (it is part of the AS-REQ). The KDC will attempt to decrypt it and validate that the right password was used and that it is not replaying a previous request.  From there, the TGT will be issued for the user to use for future authentication.
+
+Luckily, preauthentication is required by default in Active Directory.  However, when capturing the network an offline bruteforce of the password is possible.
+
 
 Write up
 -----------
@@ -29,7 +31,9 @@ Write up
 - Find this information in the pcapng: username (CNameString: kerbdog), domain (realm: sbb.local), encryption type (etype: AES '18') and the cipher.
 ![2](./pics/2.png)
 
-- Use your google Fu and the etype from the previous step to find out how to decrypt the cipher: 
+Ps: The cipher can be from the AS-REQ or AS-REP. When cracked, they can both give the user's password.
+
+- if using the cipher from AS-REQ 
 ![3](./pics/3.png)
 
 - Now you now that the hashcat hash format must be like: $krb5pa$18$username$domain$cipher
@@ -50,5 +54,6 @@ Flag
 References
 ----------
 
+-https://www.harmj0y.net/blog/activedirectory/roasting-as-reps/
 - https://ldapwiki.com/wiki/Kerberos%20Pre-Authentication
 

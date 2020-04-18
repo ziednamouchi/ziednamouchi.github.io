@@ -29,17 +29,20 @@ Write up
 
 - Try to understand how the kerberos authentication works
 - Find this information in the pcapng: username (CNameString: kerbdog), domain (realm: sbb.local), encryption type (etype: AES '18') and the cipher.
-![2|2000*400](./pics/2.png)
+![2](./pics/2.png)
 
 Ps: The cipher can be from the AS-REQ or AS-REP. When cracked, they can both give the user's password.
 
-- if using the cipher from AS-REQ 
-![3](./pics/3.png)
-
-- Now you now that the hashcat hash format must be like: $krb5pa$18$username$domain$cipher
-- If hascat did not work, search a beta version of it (https://hashcat.net/beta/) with the wordlist that rocks :D
+- if using the cipher from AS-REQ. The cracking process will be more challenging. John does not crack this hash and neither do hashcat for e-type 18 (mode 19900). Luckily, [the beta version of hashcat](https://hashcat.net/beta/) supports that mode. 
+![3|2000*400](./pics/3.png)
+According to hashcat documentation the hash must be like: $krb5pa$18$username$domain$cipher
+> $krb5pa$18$kerbdog$sbb.local$sbb.localkerbdog$3863ce7fb6c523b9dad5a2b24aa437896216d27f740060f87829a2003ac32d1dad3ec07e7874f403b1077e350571e64bb033e65529c7c962
 ![4](./pics/4.png)
 
+if using the cipher from AS-REP (which is similar to AS-REP roasting) you can either use john with hash like: $krb5asrep$18$domainuser$cipher 
+> $krb5asrep$18$SBB.LOCALkerbdog$921353c94ab565d7c95ddd4b32ba179e135ca82d19a80daac0ade3c8e4976fc521681268cf6d77b181f73a50cbf1fc43669e5453bd76577d66068138b14b281bebbe4c81c57fd21199b98de9352be82697de9b103a9639d70795208c2375105bef1a208e1da03d315aa69a9da3436c78d28c0d3974dc6d84878c29c2d936b0f3370ee159419d58dbb4283f3a4f7300225ec48dceb57061e61977f108f279a256d528b329bf9ad02cb7834c6cf2b7bc7eac243678d66d27e6bcc64057237bfae442fc8bc53f63b22ef7fcc92c6d0358e20eed648de7aac48c988adff642b922885878cc75ae583c1ee34693ca1e16dbd6584fa05aca3b5f217a574567abac601c5aa3d76a40a3fe5245087f246476cfd9ef17eba8d9125a09e7d4da6e8f74876d17a7a1f5c861944d45df61654c96fcb444dc17$2b9b90918c5bb823c4ffe0db
+
+or hashcat (mode 19700)
 
 Distribution
 -------------

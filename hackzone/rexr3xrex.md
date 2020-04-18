@@ -29,7 +29,7 @@ Write up
 
 - Try to understand how the kerberos authentication works
 - Find this information in the pcapng: username (CNameString: kerbdog), domain (realm: sbb.local), encryption type (etype: AES '18') and the cipher.
-![2](./pics/2.png)
+![2|2000*400](./pics/2.png)
 
 Ps: The cipher can be from the AS-REQ or AS-REP. When cracked, they can both give the user's password.
 

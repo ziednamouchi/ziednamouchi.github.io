@@ -11,9 +11,9 @@ plugins:
   - kramdown
 
 # Setup
-title:            Hyde
-tagline:          'A Jekyll theme'
-description:      'A brazen two-column <a href="http://jekyllrb.com" target="_blank">Jekyll</a> theme that pairs a prominent sidebar with uncomplicated content. Made by <a href="https://twitter.com/mdo" target="_blank">@mdo</a>.'
+title:            zpYcho's Blog
+tagline:          'Lelouch Lamperouge'
+description:      'Yet another blog from a cyber security enthusiast'
 url:              https://ziednamouchi.github.io/
 baseurl:          /
 

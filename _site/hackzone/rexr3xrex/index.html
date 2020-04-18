@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+  <head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>
+    
+       &middot; Hyde
+    
+  </title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/public/css/poole.css">
+  <link rel="stylesheet" href="/public/css/syntax.css">
+  <link rel="stylesheet" href="/public/css/hyde.css">
+  <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  <!-- Icons -->
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/public/apple-touch-icon-144-precomposed.png">
+                                 <link rel="shortcut icon" href="/public/favicon.ico">
+
+  <!-- RSS -->
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+</head>
+
+
+  <body>
+
+    <div class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <h1>
+        <a href="/">
+          Hyde
+        </a>
+      </h1>
+      <p class="lead">A brazen two-column <a href="http://jekyllrb.com" target="_blank">Jekyll</a> theme that pairs a prominent sidebar with uncomplicated content. Made by <a href="https://twitter.com/mdo" target="_blank">@mdo</a>.</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="sidebar-nav-item" href="/">Home</a>
+
+      
+
+      
+      
+        
+          
+        
+      
+        
+          
+            <a class="sidebar-nav-item" href="/about/">About</a>
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+      
+
+      <a class="sidebar-nav-item" href="https://github.com/poole/hyde/archive/v2.1.0.zip">Download</a>
+      <a class="sidebar-nav-item" href="https://github.com/poole/hyde">GitHub project</a>
+      <span class="sidebar-nav-item">Currently v2.1.0</span>
+    </nav>
+
+    <p>&copy; 2020. All rights reserved.</p>
+  </div>
+</div>
+
+
+    <div class="content container">
+      <h1 id="hackzone-rexr3xrex-walkthrough">Hackzone: RexR3xRex Walkthrough</h1>
+
+<p><img src="/public/img/hz.png" alt="hz" /></p>
+
+<h2 id="presentation">Presentation</h2>
+
+<p>During an Active Directory pentest mission, i successfully pwned a user password from this network traffic capture, can you reproduce what I have done and submit the flag in this format : HZVIII{user@domain:password}</p>
+
+<h2 id="vulnerability">Vulnerability</h2>
+
+<p>Kerberos Preauthentication: cracking user password from AS-REQ or AS-REP.
+Actually Pre-authentication is the first step first in Kerberos authentication.</p>
+
+<p>How Preauth works? When requesting a TGT a user encrypts the timestamp with its own password and sends <a href="https://tools.ietf.org/html/rfc4120#page-60">the PA-DATA</a> (it is part of the AS-REQ). The KDC will attempt to decrypt it and validate that the right password was used and that it is not replaying a previous request.  From there, the TGT will be issued for the user to use for future authentication.</p>
+
+<p>Luckily, preauthentication is required by default in Active Directory.  However, when capturing the network an offline bruteforce of the password is possible.</p>
+
+<h2 id="write-up">Write up</h2>
+
+<ul>
+  <li>
+    <p>Analyse the given pcapng and find the kerberos traffic
+<img src="/public/img/1.png" alt="1" /></p>
+  </li>
+  <li>Try to understand how the kerberos authentication works</li>
+  <li>Find this information in the pcapng: username (CNameString: kerbdog), domain (realm: sbb.local), encryption type (etype: AES ‘18’) and the cipher.
+<img src="/public/img/2.png" alt="2" /></li>
+</ul>
+
+<p>Ps: The cipher can be from the AS-REQ or AS-REP. When cracked, they can both give the user’s password.</p>
+
+<ul>
+  <li>if using the cipher from AS-REQ. The cracking process will be more challenging. John does not crack this hash and neither do hashcat for e-type 18 (mode 19900). Luckily, <a href="https://hashcat.net/beta/">the beta version of hashcat</a> supports that mode. 
+<img src="/public/img/3.png" alt="3" />
+According to hashcat documentation the hash must be like: $krb5pa$18$username$domain$cipher
+    <blockquote>
+      <p>$krb5pa$18$kerbdog$sbb.local$sbb.localkerbdog$3863ce7fb6c523b9dad5a2b24aa437896216d
+27f740060f87829a2003ac32d1dad3ec07e7874f403b1077e350571e64bb033e65529c7c962</p>
+    </blockquote>
+  </li>
+</ul>
+
+<p><img src="/public/img/4.png" alt="4" /></p>
+
+<p>if using the cipher from AS-REP (which is similar to AS-REP roasting) you can either use john with hash like: $krb5asrep$18$domainuser$cipher</p>
+<blockquote>
+  <p>$krb5asrep$18$SBB.LOCALkerbdog$921353c94ab565d7c95ddd4b32ba179e135ca82d19a80daac0ade3
+c8e4976fc521681268cf6d77b181f73a50cbf1fc43669e5453bd76577d66068138b14b281bebbe4c81c57fd
+21199b98de9352be82697de9b103a9639d70795208c2375105bef1a208e1da03d315aa69a9da3436c78d28c0
+d3974dc6d84878c29c2d936b0f3370ee159419d58dbb4283f3a4f7300225ec48dceb57061e61977f108f279a
+256d528b329bf9ad02cb7834c6cf2b7bc7eac243678d66d27e6bcc64057237bfae442fc8bc53f63b22ef7fcc
+92c6d0358e20eed648de7aac48c988adff642b922885878cc75ae583c1ee34693ca1e16dbd6584fa05aca3b5f2
+17a574567abac601c5aa3d76a40a3fe5245087f246476cfd9ef17eba8d9125a09e7d4da6e8f74876d17a7a1f5c
+861944d45df61654c96fcb444dc17$2b9b90918c5bb823c4ffe0db</p>
+</blockquote>
+
+<p>or hashcat (mode 19700)</p>
+
+<h2 id="distribution">Distribution</h2>
+<p>https://drive.google.com/open?id=1Yb_ipMIh1tCXytWApILBreIp5q8NXeML</p>
+
+<h2 id="flag">Flag</h2>
+
+<p><code>HZVIII{kerbdog@sbb.local:Kerberos!99}</code></p>
+
+<h2 id="references">References</h2>
+
+<p>-https://www.harmj0y.net/blog/activedirectory/roasting-as-reps/</p>
+<ul>
+  <li>https://ldapwiki.com/wiki/Kerberos%20Pre-Authentication</li>
+</ul>
+
+
+    </div>
+
+  </body>
+</html>

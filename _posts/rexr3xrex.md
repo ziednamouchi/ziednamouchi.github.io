@@ -4,7 +4,7 @@ layout: default
 
 # Hackzone: RexR3xRex Walkthrough
 
-![hz](../assets/img/hz.png)
+![hz](public/img/hz.png)
 
 
 
@@ -28,21 +28,21 @@ Write up
 -----------
 
 - Analyse the given pcapng and find the kerberos traffic
-![1](../hackzone/pics/1.png)
+![1](public/img/1.png)
 
 - Try to understand how the kerberos authentication works
 - Find this information in the pcapng: username (CNameString: kerbdog), domain (realm: sbb.local), encryption type (etype: AES '18') and the cipher.
-![2](../hackzone/pics/2.png)
+![2](public/img/2.png)
 
 Ps: The cipher can be from the AS-REQ or AS-REP. When cracked, they can both give the user's password.
 
 - if using the cipher from AS-REQ. The cracking process will be more challenging. John does not crack this hash and neither do hashcat for e-type 18 (mode 19900). Luckily, [the beta version of hashcat](https://hashcat.net/beta/) supports that mode. 
-![3|2000*400](../hackzone/pics/3.png)
+![3](public/img/3.png)
 According to hashcat documentation the hash must be like: $krb5pa$18$username$domain$cipher
 > $krb5pa$18$kerbdog$sbb.local$sbb.localkerbdog$3863ce7fb6c523b9dad5a2b24aa437896216d
 27f740060f87829a2003ac32d1dad3ec07e7874f403b1077e350571e64bb033e65529c7c962
 
-![4](../hackzone/hackzone/pics/4.png)
+![4](public/img/4.png)
 
 if using the cipher from AS-REP (which is similar to AS-REP roasting) you can either use john with hash like: $krb5asrep$18$domainuser$cipher 
 > $krb5asrep$18$SBB.LOCALkerbdog$921353c94ab565d7c95ddd4b32ba179e135ca82d19a80daac0ade3

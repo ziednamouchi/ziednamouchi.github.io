@@ -1,5 +1,6 @@
 ---
-layout: default
+layout: post
+title: RexR3xRex Walkthrough
 ---
 
 # Hackzone: RexR3xRex Walkthrough
